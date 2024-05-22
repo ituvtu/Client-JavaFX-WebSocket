@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ituvtu.client.controller.LoginController" spacing="10" alignment="CENTER">
+<VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" prefWidth="300" prefHeight="300" fx:controller="ituvtu.client.controller.LoginController" spacing="10" style= "-fx-padding: 0 15 0 15; " alignment="CENTER">
     <Label text="Server Configuration" />
     <TextField fx:id="serverIpField" promptText="Server IP" />
     <TextField fx:id="serverPortField" promptText="Server Port" />
