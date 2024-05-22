@@ -1,8 +1,9 @@
 package ituvtu.client.xml.message;
 
+import ituvtu.client.xml.auxiliary.LocalDateTimeAdapter;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import ituvtu.client.xml.auxiliary.*;
+
 import java.time.LocalDateTime;
 
 @XmlRootElement
@@ -29,8 +30,24 @@ public class Message {
         return from;
     }
 
+    public void setFrom(String from) {
+        this.from = from;
+    }
+
+    public String getTo() {
+        return to;
+    }
+
+    public void setTo(String to) {
+        this.to = to;
+    }
+
     public String getContent() {
         return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     @XmlJavaTypeAdapter(LocalDateTimeAdapter.class)
@@ -38,9 +55,15 @@ public class Message {
         return timestamp;
     }
 
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+
     public int getChatId() {
         return chatId;
     }
 
+    public void setChatId(int chatId) {
+        this.chatId = chatId;
+    }
 }
-

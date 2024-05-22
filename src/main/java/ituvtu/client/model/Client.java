@@ -82,6 +82,7 @@ public class Client extends WebSocketClient {
         try {
             AuthRequest authRequest = new AuthRequest(username, password);
             String xmlMessage = XMLUtil.toXML(authRequest);
+            System.out.println(xmlMessage);
             send(xmlMessage);
         } catch (JAXBException e) {
             System.err.println("Error serializing auth request: " + e.getMessage());

@@ -1,6 +1,6 @@
 package ituvtu.client.xml.chat;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.*;
 
 import java.util.Map;
 
@@ -34,5 +34,43 @@ public class ChatRequest {
         this.chatId = chatId;
     }
 
-}
+    public String getAction() {
+        return action;
+    }
 
+    public void setAction(String action) {
+        this.action = action;
+    }
+
+    public String getUsername1() {
+        return username1;
+    }
+
+    public void setUsername1(String username1) {
+        this.username1 = username1;
+    }
+
+    public String getUsername2() {
+        return username2;
+    }
+
+    public void setUsername2(String username2) {
+        this.username2 = username2;
+    }
+
+    public int getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(int chatId) {
+        this.chatId = chatId;
+    }
+
+    public Map<String, String> getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(Map<String, String> parameters) {
+        this.parameters = parameters;
+    }
+}

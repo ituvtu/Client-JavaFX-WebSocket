@@ -26,7 +26,7 @@ public class ClientApp extends Application {
 
     public static void initializeClient() throws URISyntaxException {
         if (client == null) {
-            client = Client.getInstance("ws://localhost:12349");
+            client = Client.getInstance("ws://localhost:12345");
             client.connect();
         } else if (!client.isOpen()) {
             client.reconnect();
@@ -60,7 +60,7 @@ public class ClientApp extends Application {
                 Parent root = loader.load();
                 ClientController mainController = loader.getController();
                 mainController.setClient(client);
-
+                controller = mainController;
                 Scene scene = new Scene(root);
                 scene.getStylesheets().add(Objects.requireNonNull(ClientApp.class.getResource("/ituvtu/client/client-styles.css")).toExternalForm());
                 primaryStage.setTitle("Client of " + username);

@@ -20,5 +20,8 @@ public class MessagesResponse {
         return messages;
     }
 
+    public void setMessages(List<Message> messages) {
+        this.messages = messages;
+    }
 }
 

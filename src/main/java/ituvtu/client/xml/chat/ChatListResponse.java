@@ -1,7 +1,6 @@
 package ituvtu.client.xml.chat;
 
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.*;
 
 import java.util.List;
 
@@ -9,7 +8,6 @@ import java.util.List;
 public class ChatListResponse {
     private List<Chat> chats;
 
-    @SuppressWarnings("unused")
     public ChatListResponse() {
         // JAXB requires a constructor with no arguments
     }
@@ -23,4 +21,7 @@ public class ChatListResponse {
         return chats;
     }
 
+    public void setChats(List<Chat> chats) {
+        this.chats = chats;
+    }
 }

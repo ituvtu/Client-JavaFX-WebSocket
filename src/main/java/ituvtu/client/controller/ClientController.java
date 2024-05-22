@@ -128,7 +128,9 @@ public class ClientController implements IClientObserver {
 
     private void processAuthResponse(String xmlMessage) {
         try {
+            System.out.println(xmlMessage);
             AuthResponse response = XMLUtil.fromXML(xmlMessage, AuthResponse.class);
+            System.out.println(response.isAuthenticated());
             if (response.isAuthenticated()) {
                 Platform.runLater(() -> {
                     try {
@@ -146,6 +148,7 @@ public class ClientController implements IClientObserver {
             displayLogMessage("Error parsing auth response: " + e.getMessage());
         }
     }
+
 
     private void processChatListResponse(String xmlMessage) {
         try {

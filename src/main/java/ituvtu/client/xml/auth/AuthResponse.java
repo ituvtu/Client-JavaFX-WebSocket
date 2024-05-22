@@ -1,5 +1,6 @@
 package ituvtu.client.xml.auth;
 
+import jakarta.xml.bind.annotation.*;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
@@ -19,9 +20,15 @@ public class AuthResponse {
         return authenticated;
     }
 
+    public void setAuthenticated(boolean authenticated) {
+        this.authenticated = authenticated;
+    }
+    @XmlElement
     public String getUsername() {
         return username;
     }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
 }
-

@@ -1,7 +1,6 @@
 package ituvtu.client.xml.chat;
 
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.*;
 
 @XmlRootElement
 public class Chat {
@@ -9,7 +8,6 @@ public class Chat {
     private String usernameFirst;
     private String usernameSecond;
 
-    @SuppressWarnings("unused")
     public Chat() {
         // JAXB requires a constructor with no arguments
     }
@@ -25,16 +23,34 @@ public class Chat {
         return chat_id;
     }
 
+    public void setChat_id(int chat_id) {
+        this.chat_id = chat_id;
+    }
+
     @XmlElement
     public String getUsernameFirst() {
         return usernameFirst;
+    }
+
+    public void setUsernameFirst(String usernameFirst) {
+        this.usernameFirst = usernameFirst;
     }
 
     @XmlElement
     public String getUsernameSecond() {
         return usernameSecond;
     }
-
+    public String getDisplayName(String currentUsername) {
+        // Returns the name of the chat depending on the current user
+        if (usernameFirst.equals(currentUsername)) {
+            return usernameSecond;
+        } else {
+            return usernameFirst;
+        }
+    }
+    public void setUsernameSecond(String usernameSecond) {
+        this.usernameSecond = usernameSecond;
+    }
     public String getChatDisplayName(String currentUser) {
         if (usernameFirst.equals(currentUser)) {
             return usernameSecond;
@@ -48,4 +64,3 @@ public class Chat {
         return "Chat between " + usernameFirst + " and " + usernameSecond;
     }
 }
-
