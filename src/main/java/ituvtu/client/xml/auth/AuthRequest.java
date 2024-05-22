@@ -1,6 +1,7 @@
 package ituvtu.client.xml.auth;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
+@SuppressWarnings("unused")
 @XmlRootElement
 public class AuthRequest {
     private String username;

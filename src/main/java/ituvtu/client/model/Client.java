@@ -1,7 +1,6 @@
 package ituvtu.client.model;
 
 import ituvtu.client.controller.IClientObserver;
-import ituvtu.client.view.ClientApp;
 import ituvtu.client.xml.UserConnectionInfo;
 import ituvtu.client.xml.XMLUtil;
 import ituvtu.client.xml.auth.AuthRequest;
@@ -14,7 +13,7 @@ import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Set;
 
-
+@SuppressWarnings("unused")
 public class Client extends WebSocketClient {
     private static Client instance;
     private final Set<IClientObserver> observers = new HashSet<>();
@@ -25,7 +24,10 @@ public class Client extends WebSocketClient {
         }
         return instance;
     }
-    Client(String url) throws URISyntaxException {
+    public void clearObservers(){
+        observers.clear();
+    }
+    private Client(String url) throws URISyntaxException {
         super(new URI(url));
     }
 
@@ -34,12 +36,11 @@ public class Client extends WebSocketClient {
         System.out.println("Connected to server on port: " + getURI().getPort());
     }
 
-    public void sendConnectionInfo() {
-        UserConnectionInfo info = new UserConnectionInfo(ClientApp.getUsername(), getURI().getPort());
+    public void sendConnectionInfo(String username) {
+        UserConnectionInfo info = new UserConnectionInfo(username, getURI().getPort());
         try {
             String xmlInfo = XMLUtil.toXML(info);
             send(xmlInfo);
-            ClientApp.getController().requestUserChats();
         } catch (JAXBException e) {
             System.err.println("Error serializing connection info: " + e.getMessage());
         }
@@ -47,6 +48,7 @@ public class Client extends WebSocketClient {
 
     public void addObserver(IClientObserver observer) {
         observers.add(observer);
+
     }
 
     private void notifyObservers(String message) {
@@ -57,7 +59,9 @@ public class Client extends WebSocketClient {
     public void onMessage(String message) {
         notifyObservers(message);
     }
-
+    public Set<IClientObserver> getObservers() {
+        return observers;
+    }
     public void sendMessage(String from, String recipient, String content, int chatId) {
         try {
             Message msg = new Message(from, recipient, content, chatId);
@@ -82,8 +86,8 @@ public class Client extends WebSocketClient {
         try {
             AuthRequest authRequest = new AuthRequest(username, password);
             String xmlMessage = XMLUtil.toXML(authRequest);
-            System.out.println(xmlMessage);
             send(xmlMessage);
+            System.out.println(xmlMessage);
         } catch (JAXBException e) {
             System.err.println("Error serializing auth request: " + e.getMessage());
         }

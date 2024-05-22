@@ -1,8 +1,8 @@
 package ituvtu.client.xml.auth;
 
 import jakarta.xml.bind.annotation.*;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
+@SuppressWarnings("unused")
 @XmlRootElement
 public class AuthResponse {
     private boolean authenticated;

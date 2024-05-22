@@ -20,6 +20,7 @@ import javafx.scene.text.TextFlow;
 import javafx.util.Callback;
 import ituvtu.client.xml.chat.*;
 import ituvtu.client.xml.message.*;
+
 import java.io.StringReader;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+@SuppressWarnings({"unused", "CallToPrintStackTrace"})
 public class ClientController implements IClientObserver {
     private static ClientController instance;
     @FXML
@@ -35,12 +37,13 @@ public class ClientController implements IClientObserver {
     @FXML
     private VBox messagesArea;
     @FXML
-    private ScrollPane scrollPane;
-    @FXML
     private TextField inputField;
+    @FXML
+    private TextArea logMessagesArea;
+    @FXML
+    private ScrollPane scrollPane;
     private Client client;
     public TextField newChatUsername;
-    public TextArea logMessagesArea;
     private LocalDate currentDisplayedDate = null;
     private int currentChatId = -1;
 
@@ -88,14 +91,6 @@ public class ClientController implements IClientObserver {
         messagesArea.heightProperty().addListener((observable, oldValue, newValue) -> scrollPane.setVvalue(1.0));
     }
 
-    public void setClient(Client client) {
-        this.client = client;
-        if (client != null) {
-            client.addObserver(this);
-        }
-    }
-
-
     private void loadChatMessages(int chatId) {
         messagesArea.getChildren().clear();
         try {
@@ -128,27 +123,24 @@ public class ClientController implements IClientObserver {
 
     private void processAuthResponse(String xmlMessage) {
         try {
-            System.out.println(xmlMessage);
             AuthResponse response = XMLUtil.fromXML(xmlMessage, AuthResponse.class);
-            System.out.println(response.isAuthenticated());
             if (response.isAuthenticated()) {
                 Platform.runLater(() -> {
                     try {
                         ClientApp.setUsername(response.getUsername());
                         ClientApp.showMainScreen();
-                        client.sendConnectionInfo();
+                        client.sendConnectionInfo(ClientApp.getUsername());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 });
             } else {
-                displayLogMessage("Authentication failed. Please check your username and password.");
+                showAlert("Authentication Failed", "Please check your username and password.");
             }
         } catch (JAXBException e) {
-            displayLogMessage("Error parsing auth response: " + e.getMessage());
+            showAlert("Error", "Error parsing authentication response: " + e.getMessage());
         }
     }
-
 
     private void processChatListResponse(String xmlMessage) {
         try {
@@ -159,6 +151,14 @@ public class ClientController implements IClientObserver {
         }
     }
 
+    private void updateChatList(List<Chat> chats) {
+        Platform.runLater(() -> {
+            chatListView.getItems().clear();
+            for (Chat chat : chats) {
+                chatListView.getItems().add(new ChatDisplayData(chat.getChat_id(), chat.getChatDisplayName(ClientApp.getUsername()), chat.getUsernameFirst(), chat.getUsernameSecond()));
+            }
+        });
+    }
 
     private void processMessage(String xmlMessage) {
         try {
@@ -184,22 +184,10 @@ public class ClientController implements IClientObserver {
         }
     }
 
-    private void updateChatList(List<Chat> chats) {
-        Platform.runLater(() -> {
-            chatListView.getItems().clear();
-            for (Chat chat : chats) {
-                chatListView.getItems().add(new ChatDisplayData(chat.getChat_id(), chat.getChatDisplayName(ClientApp.getUsername()), chat.getUsernameFirst(), chat.getUsernameSecond()));
-            }
-        });
-    }
-
-
-
     private void updateMessagesArea(List<Message> messages) {
         messagesArea.getChildren().clear();
         currentDisplayedDate = null;
         for (Message message : messages) {
-
             if (currentChatId == message.getChatId()) {
                 displayMessage(message);
             }
@@ -268,6 +256,14 @@ public class ClientController implements IClientObserver {
         logMessagesArea.appendText(text + "\n");
     }
 
+    private void showAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
     public void setChatList(List<String> chats) {
         Platform.runLater(() -> {
             chatListView.getItems().clear();
@@ -278,6 +274,27 @@ public class ClientController implements IClientObserver {
         });
     }
 
+    public void connectToServer(String serverIp, int serverPort, String username, String password) throws Exception {
+        String serverUrl = "ws://" + serverIp + ":" + serverPort;
+        client = Client.getInstance(serverUrl);
+        setClient(client);
+
+        if (client.connectBlocking()) {
+            client.sendAuthRequest(username, password);
+        } else {
+            throw new Exception("Failed to connect to the server.");
+        }
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
+        if (client != null) {
+            client.addObserver(this);
+        }
+    }
+    public void clearObservers(){
+        client.clearObservers();
+    }
     @FXML
     public void requestUserChats() {
         if (client != null && client.isOpen()) {
@@ -369,7 +386,9 @@ public class ClientController implements IClientObserver {
     public void sendAuthenticationInfo(String username, String password) {
         client.sendAuthRequest(username, password);
     }
-    public Client getClient(){
+
+    public Client getClient() {
         return client;
     }
+
 }

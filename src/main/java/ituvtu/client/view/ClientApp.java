@@ -1,6 +1,7 @@
 package ituvtu.client.view;
 
-import ituvtu.client.controller.*;
+import ituvtu.client.controller.ClientController;
+import ituvtu.client.controller.LoginController;
 import ituvtu.client.model.Client;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -12,11 +13,12 @@ import javafx.stage.Stage;
 import java.net.URISyntaxException;
 import java.util.Objects;
 
+@SuppressWarnings("CallToPrintStackTrace")
 public class ClientApp extends Application {
-    static ClientController controller;
-    static Client client;
+    private static ClientController clientController;
+    private static Client client;
     private static Stage primaryStage;
-    static String username;
+    private static String username;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -24,28 +26,26 @@ public class ClientApp extends Application {
         showLoginScreen();
     }
 
-    public static void initializeClient() throws URISyntaxException {
-        if (client == null) {
-            client = Client.getInstance("ws://localhost:12345");
-            client.connect();
-        } else if (!client.isOpen()) {
-            client.reconnect();
+    public static void initializeClient(String serverIp, int serverPort, String username, String password) throws URISyntaxException, InterruptedException {
+        String serverUrl = "ws://" + serverIp + ":" + serverPort;
+        client = Client.getInstance(serverUrl);
+        if (client.connectBlocking()) {
+            if (clientController == null) {
+                clientController = new ClientController();
+            }
+            clientController.setClient(client);
+            client.addObserver(clientController);
+            client.sendAuthRequest(username, password);
+        } else {
+            throw new InterruptedException("Failed to connect to the server.");
         }
     }
 
     public void showLoginScreen() throws Exception {
-        initializeClient();
-        if (controller == null) {
-            FXMLLoader mainLoader = new FXMLLoader(ClientApp.class.getResource("/ituvtu/client/Client.fxml"));
-            mainLoader.load();
-            controller = mainLoader.getController();
-            controller.setClient(client);
-            client.addObserver(controller);
-        }
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/ituvtu/client/Login.fxml"));
         Parent root = loader.load();
         LoginController loginController = loader.getController();
-        loginController.setController(controller);
+        System.out.println("Login: "+ loginController);
 
         Scene scene = new Scene(root);
         primaryStage.setTitle("Login");
@@ -56,16 +56,17 @@ public class ClientApp extends Application {
     public static void showMainScreen() {
         Platform.runLater(() -> {
             try {
+                clientController.clearObservers();
                 FXMLLoader loader = new FXMLLoader(ClientApp.class.getResource("/ituvtu/client/Client.fxml"));
                 Parent root = loader.load();
-                ClientController mainController = loader.getController();
+                ClientController mainController=loader.getController();
                 mainController.setClient(client);
-                controller = mainController;
                 Scene scene = new Scene(root);
                 scene.getStylesheets().add(Objects.requireNonNull(ClientApp.class.getResource("/ituvtu/client/client-styles.css")).toExternalForm());
                 primaryStage.setTitle("Client of " + username);
                 primaryStage.setScene(scene);
                 primaryStage.show();
+                clientController.requestUserChats();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -80,8 +81,9 @@ public class ClientApp extends Application {
         return username;
     }
 
-    public static ClientController getController() {
-        return controller;
+    @SuppressWarnings("unused")
+    public  Client getClient() {
+        return client;
     }
 
     public static void main(String[] args) {
