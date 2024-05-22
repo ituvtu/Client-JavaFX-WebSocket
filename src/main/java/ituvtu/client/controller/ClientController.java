@@ -1,37 +1,26 @@
 package ituvtu.client.controller;
 
-import ituvtu.client.chat.ChatDisplayData;
-import ituvtu.client.model.Client;
-import ituvtu.client.view.ClientApp;
-import ituvtu.client.xml.XMLUtil;
-import ituvtu.client.xml.auth.AuthResponse;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Unmarshaller;
+import ituvtu.client.chat.*;
+import ituvtu.client.model.*;
+import ituvtu.client.util.*;
+import ituvtu.client.view.*;
+import ituvtu.client.xml.*;
+import ituvtu.client.xml.auth.*;
+import jakarta.xml.bind.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
-import javafx.util.Callback;
+import javafx.util.*;
 import ituvtu.client.xml.chat.*;
 import ituvtu.client.xml.message.*;
-
-import java.io.StringReader;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.io.*;
+import java.time.*;
+import java.util.*;
 
 @SuppressWarnings({"unused", "CallToPrintStackTrace"})
 public class ClientController implements IClientObserver {
-    private static ClientController instance;
     @FXML
     private ListView<ChatDisplayData> chatListView;
     @FXML
@@ -48,13 +37,6 @@ public class ClientController implements IClientObserver {
     private int currentChatId = -1;
 
     public ClientController() {}
-
-    public static synchronized ClientController getInstance() {
-        if (instance == null) {
-            instance = new ClientController();
-        }
-        return instance;
-    }
 
     @FXML
     public void initialize() {
@@ -88,7 +70,21 @@ public class ClientController implements IClientObserver {
             }
         });
 
-        messagesArea.heightProperty().addListener((observable, oldValue, newValue) -> scrollPane.setVvalue(1.0));
+        // Add scroll event listener to the scroll pane
+        scrollPane.setOnScroll((ScrollEvent event) -> {
+            double deltaY = event.getDeltaY();
+            double width = scrollPane.getContent().getBoundsInLocal().getWidth();
+            double vvalue = scrollPane.getVvalue();
+            scrollPane.setVvalue(vvalue - deltaY / width);
+        });
+
+        // Optional: To make the scroll more smooth and natural
+        scrollPane.addEventFilter(ScrollEvent.SCROLL, event -> {
+            if (event.getDeltaX() != 0) {
+                event.consume();
+            }
+        });
+
     }
 
     private void loadChatMessages(int chatId) {
@@ -200,56 +196,10 @@ public class ClientController implements IClientObserver {
 
         if (currentDisplayedDate == null || !currentDisplayedDate.equals(messageDate)) {
             currentDisplayedDate = messageDate;
-            String formattedDate = formatDate(messageDate);
-            Label dateLabel = new Label(formattedDate);
-            dateLabel.setAlignment(Pos.CENTER);
-            dateLabel.getStyleClass().add("date-label");
-            HBox dateBox = new HBox();
-            dateBox.setAlignment(Pos.CENTER);
-            dateBox.getChildren().add(dateLabel);
-            messagesArea.getChildren().add(dateBox);
+            messagesArea.getChildren().add(UIFactory.createDateLabel(messageDate));
         }
 
-        VBox messageBox = new VBox();
-        Label senderLabel = new Label(message.getFrom());
-        senderLabel.getStyleClass().add("sender-label");
-
-        Text messageText = new Text(message.getContent());
-        messageText.setWrappingWidth(300);
-        messageText.getStyleClass().add("message-text");
-
-        TextFlow messageFlow = new TextFlow(messageText);
-        messageFlow.setMaxWidth(300);
-        messageFlow.getStyleClass().add("message-text-flow");
-
-        Label timeLabel = new Label(timestamp.format(DateTimeFormatter.ofPattern("HH:mm")));
-        timeLabel.getStyleClass().add("time-label");
-
-        HBox messageContainer = new HBox();
-        messageContainer.setMaxWidth(300);
-
-        StackPane textContainer = new StackPane(messageFlow);
-        textContainer.setMaxWidth(300);
-
-        messageContainer.getChildren().add(textContainer);
-
-        if (message.getFrom().equals(ClientApp.getUsername())) {
-            messageBox.setAlignment(Pos.CENTER_LEFT);
-            messageContainer.setAlignment(Pos.CENTER_LEFT);
-            textContainer.getStyleClass().add("text-container-left");
-        } else {
-            messageBox.setAlignment(Pos.CENTER_RIGHT);
-            messageContainer.setAlignment(Pos.CENTER_RIGHT);
-            textContainer.getStyleClass().add("text-container-right");
-        }
-
-        messageBox.getChildren().addAll(senderLabel, messageContainer, timeLabel);
-        messagesArea.getChildren().add(messageBox);
-    }
-
-    private String formatDate(LocalDate date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM", Locale.getDefault());
-        return date.format(formatter);
+        messagesArea.getChildren().add(UIFactory.createMessageBox(message));
     }
 
     private void displayLogMessage(String text) {
@@ -292,9 +242,11 @@ public class ClientController implements IClientObserver {
             client.addObserver(this);
         }
     }
-    public void clearObservers(){
+
+    public void clearObservers() {
         client.clearObservers();
     }
+
     @FXML
     public void requestUserChats() {
         if (client != null && client.isOpen()) {
@@ -390,5 +342,4 @@ public class ClientController implements IClientObserver {
     public Client getClient() {
         return client;
     }
-
 }

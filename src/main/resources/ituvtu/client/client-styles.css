@@ -81,11 +81,11 @@
 }
 
 .message-text-flow {
-    -fx-padding: 5;
+    -fx-padding: 15 0 15 0;
 }
 
 .message-text {
-    -fx-padding: 5 0 5 0;
+    -fx-padding: 0 5 0 5;
 }
 
 .log-message {
