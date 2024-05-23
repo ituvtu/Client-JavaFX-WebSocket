@@ -20,7 +20,8 @@ import java.time.*;
 import java.util.*;
 
 @SuppressWarnings({"unused", "CallToPrintStackTrace"})
-public class ClientController implements IClientObserver {
+public class ClientController implements IClientObserver, IClientController {
+    private static ClientController instance;
     @FXML
     private ListView<ChatDisplayData> chatListView;
     @FXML
@@ -37,7 +38,6 @@ public class ClientController implements IClientObserver {
     private int currentChatId = -1;
 
     public ClientController() {}
-
     @FXML
     public void initialize() {
         chatListView.setCellFactory(new Callback<>() {
@@ -147,7 +147,7 @@ public class ClientController implements IClientObserver {
         }
     }
 
-    private void updateChatList(List<Chat> chats) {
+    public void updateChatList(List<Chat> chats) {
         Platform.runLater(() -> {
             chatListView.getItems().clear();
             for (Chat chat : chats) {
@@ -190,7 +190,7 @@ public class ClientController implements IClientObserver {
         }
     }
 
-    private void displayMessage(Message message) {
+    public void displayMessage(Message message) {
         LocalDateTime timestamp = message.getTimestamp();
         LocalDate messageDate = timestamp.toLocalDate();
 
@@ -202,7 +202,7 @@ public class ClientController implements IClientObserver {
         messagesArea.getChildren().add(UIFactory.createMessageBox(message));
     }
 
-    private void displayLogMessage(String text) {
+    public void displayLogMessage(String text) {
         logMessagesArea.appendText(text + "\n");
     }
 
@@ -286,7 +286,7 @@ public class ClientController implements IClientObserver {
     }
 
     @FXML
-    private void createNewChat() {
+    public void createNewChat() {
         System.out.println("Creating new chat");
         String username2 = newChatUsername.getText().trim();
         if (!username2.isEmpty()) {
@@ -317,7 +317,7 @@ public class ClientController implements IClientObserver {
     }
 
     @FXML
-    private void deleteChat() {
+    public void deleteChat() {
         final int selectedIdx = chatListView.getSelectionModel().getSelectedIndex();
         if (selectedIdx != -1) {
             ChatDisplayData selectedChat = chatListView.getItems().get(selectedIdx);
@@ -335,7 +335,7 @@ public class ClientController implements IClientObserver {
         }
     }
 
-    public void sendAuthenticationInfo(String username, String password) {
+    public void sendAuthInfo(String username, String password) {
         client.sendAuthRequest(username, password);
     }
 

@@ -1,5 +1,6 @@
 package ituvtu.client.view;
 
+import ituvtu.client.controller.IClientController;
 import ituvtu.client.controller.ClientController;
 import ituvtu.client.controller.LoginController;
 import ituvtu.client.model.Client;
@@ -15,7 +16,7 @@ import java.util.Objects;
 
 @SuppressWarnings("CallToPrintStackTrace")
 public class ClientApp extends Application {
-    private static ClientController clientController;
+    private static IClientController clientController;
     private static Client client;
     private static Stage primaryStage;
     private static String username;
@@ -35,7 +36,7 @@ public class ClientApp extends Application {
             }
             clientController.setClient(client);
             client.addObserver(clientController);
-            client.sendAuthRequest(username, password);
+            clientController.sendAuthInfo(username, password);
         } else {
             throw new InterruptedException("Failed to connect to the server.");
         }
@@ -45,7 +46,7 @@ public class ClientApp extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/ituvtu/client/Login.fxml"));
         Parent root = loader.load();
         LoginController loginController = loader.getController();
-        System.out.println("Login: "+ loginController);
+        System.out.println("Login: " + loginController);
 
         Scene scene = new Scene(root);
         primaryStage.setTitle("Login");
@@ -59,7 +60,7 @@ public class ClientApp extends Application {
                 clientController.clearObservers();
                 FXMLLoader loader = new FXMLLoader(ClientApp.class.getResource("/ituvtu/client/Client.fxml"));
                 Parent root = loader.load();
-                ClientController mainController=loader.getController();
+                IClientController mainController = loader.getController();
                 mainController.setClient(client);
                 Scene scene = new Scene(root);
                 scene.getStylesheets().add(Objects.requireNonNull(ClientApp.class.getResource("/ituvtu/client/client-styles.css")).toExternalForm());
@@ -82,7 +83,7 @@ public class ClientApp extends Application {
     }
 
     @SuppressWarnings("unused")
-    public  Client getClient() {
+    public Client getClient() {
         return client;
     }
 
