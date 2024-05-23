@@ -14,19 +14,21 @@ import java.util.HashSet;
 import java.util.Set;
 
 @SuppressWarnings("unused")
-public class Client extends WebSocketClient {
-    private static Client instance;
+public class Client extends WebSocketClient implements IClient {
+    private static IClient instance;
     private final Set<IClientObserver> observers = new HashSet<>();
 
-    public static Client getInstance(String url) throws URISyntaxException {
+    public static IClient getInstance(String url) throws URISyntaxException {
         if (instance == null) {
             instance = new Client(url);
         }
         return instance;
     }
+
     public void clearObservers(){
         observers.clear();
     }
+
     private Client(String url) throws URISyntaxException {
         super(new URI(url));
     }
@@ -36,6 +38,7 @@ public class Client extends WebSocketClient {
         System.out.println("Connected to server on port: " + getURI().getPort());
     }
 
+    @Override
     public void sendConnectionInfo(String username) {
         UserConnectionInfo info = new UserConnectionInfo(username, getURI().getPort());
         try {
@@ -46,9 +49,9 @@ public class Client extends WebSocketClient {
         }
     }
 
+    @Override
     public void addObserver(IClientObserver observer) {
         observers.add(observer);
-
     }
 
     private void notifyObservers(String message) {
@@ -59,9 +62,13 @@ public class Client extends WebSocketClient {
     public void onMessage(String message) {
         notifyObservers(message);
     }
+
+    @Override
     public Set<IClientObserver> getObservers() {
         return observers;
     }
+
+    @Override
     public void sendMessage(String from, String recipient, String content, int chatId) {
         try {
             Message msg = new Message(from, recipient, content, chatId);
@@ -82,6 +89,7 @@ public class Client extends WebSocketClient {
         System.out.println("Error occurred: " + ex.getMessage());
     }
 
+    @Override
     public void sendAuthRequest(String username, String password) {
         try {
             AuthRequest authRequest = new AuthRequest(username, password);

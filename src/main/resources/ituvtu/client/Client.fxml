@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<!--suppress JavaFxUnresolvedStyleClassReference -->
+<!--suppress JavaFxUnresolvedStyleClassReference, JavaFxEventHandler -->
 <VBox fx:controller="ituvtu.client.controller.ClientController" xmlns:fx="http://javafx.com/fxml/1" spacing="10" prefHeight="750">
     <HBox spacing="5">
         <TextField fx:id="newChatUsername" promptText="Enter username..." HBox.hgrow="ALWAYS"/>

@@ -3,7 +3,8 @@ package ituvtu.client.view;
 import ituvtu.client.controller.IClientController;
 import ituvtu.client.controller.ClientController;
 import ituvtu.client.controller.LoginController;
-import ituvtu.client.model.Client;
+import ituvtu.client.model.*;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -17,7 +18,7 @@ import java.util.Objects;
 @SuppressWarnings("CallToPrintStackTrace")
 public class ClientApp extends Application {
     private static IClientController clientController;
-    private static Client client;
+    private static IClient client; // Використання інтерфейсу IClient
     private static Stage primaryStage;
     private static String username;
 
@@ -29,7 +30,7 @@ public class ClientApp extends Application {
 
     public static void initializeClient(String serverIp, int serverPort, String username, String password) throws URISyntaxException, InterruptedException {
         String serverUrl = "ws://" + serverIp + ":" + serverPort;
-        client = Client.getInstance(serverUrl);
+        client = Client.getInstance(serverUrl); // Повертається інтерфейс IClient
         if (client.connectBlocking()) {
             if (clientController == null) {
                 clientController = new ClientController();
@@ -83,7 +84,7 @@ public class ClientApp extends Application {
     }
 
     @SuppressWarnings("unused")
-    public Client getClient() {
+    public IClient getClient() {
         return client;
     }
 

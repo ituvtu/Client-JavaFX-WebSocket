@@ -32,7 +32,7 @@ public class ClientController implements IClientObserver, IClientController {
     private TextArea logMessagesArea;
     @FXML
     private ScrollPane scrollPane;
-    private Client client;
+    private IClient client;  // Використання інтерфейсу IClient
     public TextField newChatUsername;
     private LocalDate currentDisplayedDate = null;
     private int currentChatId = -1;
@@ -236,7 +236,7 @@ public class ClientController implements IClientObserver, IClientController {
         }
     }
 
-    public void setClient(Client client) {
+    public void setClient(IClient client) {
         this.client = client;
         if (client != null) {
             client.addObserver(this);
@@ -339,7 +339,7 @@ public class ClientController implements IClientObserver, IClientController {
         client.sendAuthRequest(username, password);
     }
 
-    public Client getClient() {
+    public IClient getClient() {
         return client;
     }
 }
